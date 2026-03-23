@@ -1,5 +1,9 @@
 name: Build Android APK
-on: [push, pull_request]
+on: 
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
@@ -19,4 +23,6 @@ jobs:
         with:
           name: package
           path: bin/*.apk
+          
+      
           
