@@ -1,5 +1,4 @@
 name: Build APK
-onname: Build APK
 on: [push, pull_request]
 
 jobs:
