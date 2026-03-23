@@ -3,7 +3,7 @@ import os
 import yt_dlp
 from kivy.config import Config
 
-# تثبيت الوضع الطولي ومنع تداخل العناصر في الواجهة كما طلبت
+# تثبيت الإعدادات الأساسية للواجهة
 Config.set('graphics', 'resizable', '0')
 Config.set('graphics', 'width', '360')
 Config.set('graphics', 'height', '640')
@@ -15,6 +15,7 @@ from kivy.utils import platform
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.menu import MDDropdownMenu
 
+# الكود الخاص بالواجهة (KV Language) كما هو مع تحسينات طفيفة
 KV = '''
 <MenuCard@MDCard>:
     icon: ""
@@ -164,15 +165,25 @@ class YDownloaderPro(MDApp):
 
     def build(self):
         self.theme_cls.theme_style = "Dark"
+        self.theme_cls.primary_palette = "Amber" # اللون الذهبي الذي تفضله
+        
         if platform == 'android':
             try:
-                # محاولة طلب الصلاحيات لتجنب خطأ الـ Logs في الصورة الأولى
+                # طلب صلاحيات التخزين الحديثة المتوافقة مع أندرويد 13+
                 from android.permissions import request_permissions, Permission
-                request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
-            except: pass
-            self.base_path = "/sdcard/Download"
+                request_permissions([
+                    Permission.WRITE_EXTERNAL_STORAGE, 
+                    Permission.READ_EXTERNAL_STORAGE,
+                    # صلاحيات إضافية للنسخ الحديثة
+                    "android.permission.MANAGE_EXTERNAL_STORAGE" 
+                ])
+                from android.storage import primary_external_storage_path
+                self.base_path = os.path.join(primary_external_storage_path(), "Download")
+            except:
+                self.base_path = "/sdcard/Download"
         else:
             self.base_path = "./Downloads"
+            
         return Builder.load_string(KV)
 
     def open_quality_menu(self, button):
@@ -206,10 +217,11 @@ class YDownloaderPro(MDApp):
 
     def safe_engine(self, url, sn):
         try:
+            # التأكد من وجود المجلد
             path = os.path.join(self.base_path, "YDownloader")
-            if not os.path.exists(path): os.makedirs(path, exist_ok=True)
+            if not os.path.exists(path):
+                os.makedirs(path, exist_ok=True)
             
-            # إعدادات المحرك المحدثة لحل مشكلة يوتيوب وفيسبوك النهائية
             opts = {
                 'format': self.selected_quality,
                 'outtmpl': f'{path}/%(title)s.%(ext)s',
@@ -220,7 +232,6 @@ class YDownloaderPro(MDApp):
                 'progress_hooks': [lambda d: self.hook(d, sn)],
                 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
                 'referer': 'https://www.google.com/',
-                # كسر حماية يوتيوب الحالية عبر محاكاة مشغلات مختلفة
                 'extractor_args': {
                     'youtube': {
                         'player_client': ['web', 'mweb', 'android'],
@@ -231,17 +242,18 @@ class YDownloaderPro(MDApp):
             
             with yt_dlp.YoutubeDL(opts) as ydl:
                 ydl.download([url])
-            self.update_ui(sn, "Success! Saved in Downloads", 100, 0)
+            self.update_ui(sn, "Success! Check Downloads/YDownloader", 100, 0)
         except Exception as e:
-            # رسالة خطأ موحدة وأنيقة كما تظهر في صورك
-            self.update_ui(sn, "Error: Check Connection/Link", 0, 0)
+            self.update_ui(sn, f"Error: {str(e)[:30]}", 0, 0)
 
     def hook(self, d, sn):
         if d['status'] == 'downloading':
             try:
-                p = d.get('_percent_str', '0%').replace('%','').strip()
-                self.update_ui(sn, f"Downloading: {p}%", float(p), 1)
+                p_str = d.get('_percent_str', '0%').replace('%','').strip()
+                p_float = float(p_str)
+                self.update_ui(sn, f"Downloading: {p_str}%", p_float, 1)
             except: pass
 
 if __name__ == '__main__':
     YDownloaderPro().run()
+    
