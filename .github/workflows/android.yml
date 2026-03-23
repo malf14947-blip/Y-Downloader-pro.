@@ -13,27 +13,27 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Dependencies
+      - name: Install System Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential git python3 python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good libgstreamer-plugins-base1.0-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev libc6-dev libgdbm-dev libncursesw5-dev libffi-dev tk-dev uuid-dev lzma-dev liblzma-dev openjdk-17-jdk aidl
           pip install --upgrade pip
           pip install buildozer cython
 
-      - name: Accept Android Licenses
+      - name: Configure Android SDK Path
         run: |
-          mkdir -p ~/.android
-          touch ~/.android/repositories.cfg
-          yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses || true
+          # نحدد للسيرفر أين يجد أدوات الأندرويد بالضبط
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle" >> $GITHUB_ENV
 
       - name: Build with Buildozer
         run: |
-          # سيقوم هذا الأمر الآن بالبناء مع وجود aidl والتراخيص المقبولة
-          buildozer android debug
+          # استخدام الأمر المباشر مع قبول التراخيص تلقائياً
+          yes | buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Y-Downloader-Pro-APK
+          name: Y-Downloader-Pro-App
           path: bin/*.apk
           
