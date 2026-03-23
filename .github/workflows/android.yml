@@ -16,13 +16,13 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential git python3 python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good libgstreamer-plugins-base1.0-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev libc6-dev libgdbm-dev libncursesw5-dev libffi-dev tk-dev uuid-dev lzma-dev liblzma-dev openjdk-17-jdk
+          sudo apt-get install -y build-essential git python3 python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good libgstreamer-plugins-base1.0-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev libc6-dev libgdbm-dev libncursesw5-dev libffi-dev tk-dev uuid-dev lzma-dev liblzma-dev openjdk-17-jdk aidl
           pip install --upgrade pip
           pip install buildozer cython
 
       - name: Build with Buildozer
         run: |
-          # الموافقة على التراخيص وبدء البناء فوراً
+          # هذا السطر يضمن قبول كل تراخيص أندرويد وتثبيت الأدوات المفقودة تلقائياً
           yes | buildozer android debug
 
       - name: Upload APK
