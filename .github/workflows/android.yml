@@ -13,21 +13,21 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Buildozer
+      - name: Install Dependencies
         run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git python3 python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good libgstreamer-plugins-base1.0-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev libc6-dev libgdbm-dev libncursesw5-dev libffi-dev tk-dev uuid-dev lzma-dev liblzma-dev
           pip install --upgrade pip
           pip install buildozer cython
-          sudo apt-get update
-          sudo apt-get install -y build-essential libltdl-dev libffi-dev libssl-dev zlib1g-dev
 
       - name: Build with Buildozer
         run: |
-          # سيقوم هذا الأمر ببدء بناء التطبيق فعلياً
+          # هذه الخطوة ستقوم بتحميل Android SDK تلقائياً
           buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Y-Downloader-Pro-App
+          name: Y-Downloader-Pro-APK
           path: bin/*.apk
           
